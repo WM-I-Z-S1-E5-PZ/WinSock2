@@ -1,5 +1,5 @@
 //#define _WINSOCKAPI_
-//#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 //#define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
 
@@ -14,8 +14,21 @@
 #define BUFLEN 512
 
 // If leave empty or ::1 - test localhost
-const char szHost[] = "::1";
-//const char szHost[] = "2001:4860:4860:0:0:0:0:6464";
+//const char szHost[] = "::1";
+// this is google part
+//const char szHost[] = "2a00:1450:4006:804::200e";
+//const char szHost[] = "2a00:1450:401b:803::200e";
+//const char szHost[] = "2a00:1450:401b:806::200e";
+
+// this is facebook part
+//const char szHost[] = "2a03:2880:f003:c07:face:b00c::2";
+
+// Some random IPv6
+// this one doesn't work
+//const char szHost[] = "fd83:4118:1d3:9bc2:0:0:0:0";
+// this one too
+const char szHost[] = "febc:580d:21fd:25d7:d6fc:2ea2:ff52:252";
+
 
 using std::cout;
 using std::endl;
@@ -23,14 +36,20 @@ using std::endl;
 int main() {
 
     // Initializing Winsock
-    WORD wVersionRequested = MAKEWORD(2, 2);
     WSADATA wsaData;
+    WORD wVersionRequested = MAKEWORD(2, 2);
     // The WSAStartup function is called to initiate use of WS2_32.dll.
     int iResult = WSAStartup(wVersionRequested, &wsaData);
-    if (iResult != 0)
+    if (iResult != NO_ERROR)
     {
         cout << "WSASturtup failed: " << iResult << endl;
         return 1;
+    }
+    else
+    {
+        cout << "========================= _WinSock status_ ======================\n";
+        cout << "|\t\t\tThe WinSock dll found!\t\t\t|\n" << "|\t\t\tThe status: " << wsaData.szSystemStatus << "\t\t\t|" << endl;
+        cout << "=================================================================\n\n";
     }
 
     if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
@@ -38,11 +57,11 @@ int main() {
         /* Tell the user that we could not find a usable WinSock DLL.*/
         printf("The dll do not support the Winsock version %u.%u!\n", LOBYTE(wsaData.wVersion), HIBYTE(wsaData.wVersion));
         WSACleanup();
-        return 0;
+        return 1;
     }
     else
     {
-        cout << endl << "========================= _System data_ =========================\n";
+        cout << "========================= _System data_ =========================\n";
         cout << "|          The dll supports the Winsock version: " << (int)LOBYTE(wsaData.wVersion) << "." << (int)HIBYTE(wsaData.wVersion) << "            |" << endl;
         cout << "|          The highest version this dll can support: " << (int)LOBYTE(wsaData.wHighVersion) << "." << (int)HIBYTE(wsaData.wHighVersion) << "        |" << endl;
         cout << "=================================================================\n\n";
@@ -70,7 +89,7 @@ int main() {
     iResult = getaddrinfo(szHost, PORT, &hints, &result);
     if (iResult != 0)
     {
-        cout << "etaddrinfo failed: " << iResult << endl;
+        cout << "getaddrinfo failed: " << iResult << endl;
         WSACleanup();
         return 1;
     }
